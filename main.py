@@ -1,40 +1,22 @@
-from unittest import TestCase
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
+from HotlinePages import SearchHelper
 
-class Tests(TestCase):
-    def test_hotline_searchBox(self):
-        #arrange
-        url = 'https://hotline.ua/'
-        search_text = "Razer Basilisk Ultimate Black (RZ01-03170100-R3G1)"
-        browser = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
-        browser.implicitly_wait(60)
+def test_hotline_searchBox(browser):
+    hotline_main_page = SearchHelper(browser)
+    hotline_main_page.go_to_site()
 
-        #act
-        browser.get(url)
-        browser.find_element(by=By.ID, value='searchbox').send_keys(search_text)
-        browser.find_element(by=By.ID, value='doSearch').click()
+    search_text = "Razer Basilisk Ultimate Black (RZ01-03170100-R3G1)"
+    hotline_main_page.enter_word(search_text)
+    hotline_main_page.click_on_the_search_button()
+    response = hotline_main_page.get_response_title_name()
+    assert search_text in response
 
-        #assert
-        response = browser.find_element(by=By.CLASS_NAME, value='title__main').text
-        assert search_text in response
-        browser.close()
+def test_catalog_selected(browser):
+    hotline_main_page = SearchHelper(browser)
+    hotline_main_page.go_to_site()
 
-    def test_catalog_selected(self):
-        #arrange
-        url = 'https://hotline.ua/'
-        search_text = "Дитячі товари"
-        browser = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
-        browser.implicitly_wait(60)
+    search_text = "Дитячі товари"
+    nav_bar = hotline_main_page.find_navigation_bar_element()
+    hotline_main_page.click_on_the_navigation_bar_element(nav_bar)
 
-        #act
-        browser.get(url)
-        browser.find_element(by=By.CLASS_NAME, value='deti').click()
-        response = browser.find_elements(by=By.CLASS_NAME, value="cell-12")[2].text
-        
-        #assert
-        assert search_text in response
-        browser.close()
+    response = hotline_main_page.get_response_navigation_bar_element_title()
+    assert search_text in response
